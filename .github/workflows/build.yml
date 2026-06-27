@@ -20,11 +20,6 @@ jobs:
           pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Convert iconset to icns
-        run: |
-          if [ -d "DataForge.iconset" ]; then
-            iconutil -c icns DataForge.iconset -o DataForge.icns
-          fi
       - name: Build with PyInstaller
         run: pyinstaller DataForge.spec --clean --noconfirm --log-level WARN
       - name: Sign app
@@ -87,7 +82,10 @@ jobs:
           SectionEnd
           "@ | Out-File -FilePath installer.nsi -Encoding UTF8
       - name: Build installer
-        run: makensis installer.nsi
+        shell: pwsh
+        run: |
+          $nsispath = "C:\Program Files (x86)\NSIS\makensis.exe"
+          & $nsispath installer.nsi
       - uses: actions/upload-artifact@v4
         with:
           name: DataForge-windows-setup
