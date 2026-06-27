@@ -1,0 +1,95 @@
+name: Build DataForge — Mac DMG + Windows EXE
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    name: Build macOS DMG
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+      - name: Convert iconset to icns
+        run: |
+          if [ -d "DataForge.iconset" ]; then
+            iconutil -c icns DataForge.iconset -o DataForge.icns
+          fi
+      - name: Build with PyInstaller
+        run: pyinstaller DataForge.spec --clean --noconfirm --log-level WARN
+      - name: Sign app
+        run: codesign --force --deep --sign - dist/DataForge.app || true
+      - name: Create DMG
+        run: |
+          mkdir -p /tmp/dmg_staging
+          cp -r dist/DataForge.app /tmp/dmg_staging/
+          ln -s /Applications /tmp/dmg_staging/Applications
+          hdiutil create -volname "DataForge 2.0.0" -srcfolder /tmp/dmg_staging -ov -format UDZO DataForge-mac.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DataForge-mac-dmg
+          path: DataForge-mac.dmg
+          retention-days: 30
+
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+      - name: Build with PyInstaller
+        run: pyinstaller DataForge.spec --clean --noconfirm --log-level WARN
+      - name: Install NSIS
+        run: choco install nsis -y --no-progress
+      - name: Create installer script
+        shell: pwsh
+        run: |
+          @"
+          !define APP_NAME "DataForge"
+          !define APP_VERSION "2.0.0"
+          !define PUBLISHER "Aaron Ditcher"
+          Name "`${APP_NAME} `${APP_VERSION}"
+          OutFile "DataForge-windows-setup.exe"
+          InstallDir "`$PROGRAMFILES64\`${APP_NAME}"
+          RequestExecutionLevel admin
+          SetCompressor /SOLID lzma
+          Page directory
+          Page instfiles
+          Section "Install"
+            SetOutPath `$INSTDIR
+            File /r "dist\DataForge\*.*"
+            WriteUninstaller "uninstall.exe"
+            CreateDirectory "`$SMPROGRAMS\`${APP_NAME}"
+            CreateShortcut "`$SMPROGRAMS\`${APP_NAME}\`${APP_NAME}.lnk" "`$INSTDIR\DataForge.exe"
+            CreateShortcut "`$DESKTOP\`${APP_NAME}.lnk" "`$INSTDIR\DataForge.exe"
+          SectionEnd
+          Section "Uninstall"
+            RMDir /r "`$INSTDIR"
+            Delete "`$SMPROGRAMS\`${APP_NAME}\`${APP_NAME}.lnk"
+            Delete "`$DESKTOP\`${APP_NAME}.lnk"
+          SectionEnd
+          "@ | Out-File -FilePath installer.nsi -Encoding UTF8
+      - name: Build installer
+        run: makensis installer.nsi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DataForge-windows-setup
+          path: DataForge-windows-setup.exe
+          retention-days: 30
