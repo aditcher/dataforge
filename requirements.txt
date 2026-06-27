@@ -1,0 +1,21 @@
+# DataForge Core Dependencies
+# Python 3.11+ recommended
+
+# Excel / CSV I/O
+openpyxl>=3.1.0
+pandas>=2.0.0
+
+# Embedded analytical database
+duckdb>=0.10.0
+
+# Web server for dashboard (lightweight)
+flask>=3.0.0
+
+# GUI theming (modern tkinter)
+ttkbootstrap>=1.10.0
+
+# Data validation
+pandera>=0.18.0
+
+# Utilities
+python-dateutil>=2.8.0
