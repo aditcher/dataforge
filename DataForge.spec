@@ -19,5 +19,5 @@ coll = COLLECT(exe, a.binaries, a.zipfiles, a.datas, strip=False,
 app = BUNDLE(coll, name='DataForge.app',
     icon='DataForge.icns' if os.path.exists('DataForge.icns') else None,
     bundle_identifier='com.aditcher.dataforge',
-    info_plist={'CFBundleName':'DataForge','CFBundleVersion':'2.0.0',
+    info_plist={'CFBundleName':'DataForge','CFBundleVersion':'2.0.5',
     'NSHighResolutionCapable':True,'LSMinimumSystemVersion':'10.14.0'})

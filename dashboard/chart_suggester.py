@@ -100,18 +100,20 @@ class ChartSuggester:
             })
             used_columns.add(metric_col)
 
-        # Priority 4: Proportion
+        # Priority 4: Proportion (loop to fill remaining slots)
         remaining_cats = [c for c in self.column_roles['categorical'] if c not in used_columns]
-        if remaining_cats:
-            cat_col = remaining_cats[0]
+        for i, cat_col in enumerate(remaining_cats):
+            if len(suggestions) >= max_suggestions:
+                break
             suggestions.append({
                 'template': 'proportion',
                 'title': f'{cat_col.replace("_", " ").title()} Breakdown',
                 'x_axis': cat_col,
                 'y_axis': ['count'],
-                'chart_type': 'doughnut',
+                'chart_type': 'doughnut' if i == 0 else 'bar',
                 'max_segments': 6,
             })
+            used_columns.add(cat_col)
 
         # Priority 5: KPI cards
         all_nums = self.column_roles['numeric']

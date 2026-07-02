@@ -29,7 +29,7 @@ jobs:
           mkdir -p /tmp/dmg_staging
           cp -r dist/DataForge.app /tmp/dmg_staging/
           ln -s /Applications /tmp/dmg_staging/Applications
-          hdiutil create -volname "DataForge 2.0.0" -srcfolder /tmp/dmg_staging -ov -format UDZO DataForge-mac.dmg
+          hdiutil create -volname "DataForge 2.0.5" -srcfolder /tmp/dmg_staging -ov -format UDZO DataForge-mac.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: DataForge-mac-dmg
@@ -58,7 +58,7 @@ jobs:
         run: |
           @"
           !define APP_NAME "DataForge"
-          !define APP_VERSION "2.0.0"
+          !define APP_VERSION "2.0.5"
           !define PUBLISHER "Aaron Ditcher"
           Name "`${APP_NAME} `${APP_VERSION}"
           OutFile "DataForge-windows-setup.exe"
