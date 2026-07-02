@@ -47,7 +47,7 @@ class DashboardServer:
     <div class="dashboard" id="dashboard"></div>
     <div class="footer">Powered by DataForge v2.0 — Aaron Ditcher</div>
     <script>
-        const charts = {{ charts_json }};
+        const charts = {{ charts_json | safe }};
         const dashboard = document.getElementById('dashboard');
 
         async function fetchData(config) {
