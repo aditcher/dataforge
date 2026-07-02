@@ -19,3 +19,4 @@ pandera>=0.18.0
 
 # Utilities
 python-dateutil>=2.8.0
+chardet>=5.0.0
